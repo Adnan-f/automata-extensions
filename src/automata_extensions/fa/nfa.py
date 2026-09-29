@@ -6,4 +6,6 @@ from .base import ExtendedFA
 
 class ExtendedNFA(ExtendedFA, NFA):
     """NFA d'automata-lib enrichi par les mixins de ``ExtendedFA``."""
+
     __slots__ = ()
+    _nondeterministic = True

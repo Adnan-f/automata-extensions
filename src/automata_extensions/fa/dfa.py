@@ -9,9 +9,15 @@ from .dfa_mixins.product import ProductMixin
 from .dfa_mixins.union import UnionMixin
 from .dfa_mixins.difference import DifferenceMixin
 from .dfa_mixins.inclusion import InclusionMixin
+from .dfa_mixins.minimization import MinimizationMixin
+from .dfa_mixins.isomorphism import IsomorphismMixin
+from .dfa_mixins.prefix import PrefixMixin
 
 
 class ExtendedDFA(
+    PrefixMixin,
+    IsomorphismMixin,
+    MinimizationMixin,
     InclusionMixin,
     DifferenceMixin,
     UnionMixin,

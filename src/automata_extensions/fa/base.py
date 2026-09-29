@@ -15,9 +15,11 @@ from .fa_mixins.accessibility import AccessibilityMixin
 from .fa_mixins.cycle import CycleMixin
 from .fa_mixins.graph import GraphMixin
 from .fa_mixins.traversal import TraversalMixin
+from .fa_mixins.morphism import MorphismMixin
 
 
 class ExtendedFA(
+    MorphismMixin,
     CycleMixin,
     AccessibilityMixin,
     TraversalMixin,
@@ -31,6 +33,12 @@ class ExtendedFA(
     """
 
     __slots__ = ()  # aucun état propre : tout l'état vient de DFA/NFA/GNFA
+
+    # True pour les classes dont les transitions associent un symbole à un
+    # *ensemble* d'états cibles (NFA). Sert à distinguer ce cas d'un DFA dont
+    # les états eux-mêmes seraient des frozenset (ex. après minimize()) :
+    # tester isinstance(target, frozenset) serait ambigu dans ce second cas.
+    _nondeterministic = False
 
     @property
     def input_parameters(self) -> Dict[str, Any]:

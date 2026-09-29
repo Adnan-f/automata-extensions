@@ -39,11 +39,12 @@ class GraphMixin:
         result = set()
         row = self.transitions.get(state, {})
         for target in row.values():
-            if isinstance(target, (set, frozenset)):
+            if self._nondeterministic:
                 result.update(target)
             else:
                 result.add(target)
         return result
+
 
     def predecessors_graph(self, state) -> AbstractSet:
         """
@@ -70,7 +71,7 @@ class GraphMixin:
         result = set()
         for source, row in self.transitions.items():
             for target in row.values():
-                targets = target if isinstance(target, (set, frozenset)) else {target}
+                targets = target if self._nondeterministic else {target}
                 if state in targets:
                     result.add(source)
         return result
