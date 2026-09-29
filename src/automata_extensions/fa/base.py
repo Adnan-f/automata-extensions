@@ -11,11 +11,20 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from automata.fa.fa import FA
+from .fa_mixins.accessibility import AccessibilityMixin
+from .fa_mixins.cycle import CycleMixin
+from .fa_mixins.graph import GraphMixin
+from .fa_mixins.traversal import TraversalMixin
 
 
-class ExtendedFA(FA):
-    """
-    Base commune des automates finis étendus.
+class ExtendedFA(
+    CycleMixin,
+    AccessibilityMixin,
+    TraversalMixin,
+    GraphMixin,
+    FA,
+):
+    """Base commune des automates finis étendus.
 
     Les mixins seront ajoutés ici, *avant* ``FA`` dans la liste des parents
     (leur ordre détermine la priorité des méthodes, cf. MRO).
@@ -25,8 +34,7 @@ class ExtendedFA(FA):
 
     @property
     def input_parameters(self) -> Dict[str, Any]:
-        """
-        Attributs publics permettant de reconstruire l'automate.
+        """Attributs publics permettant de reconstruire l'automate.
 
         automata-lib ne lit que ``self.__slots__`` de la classe la plus dérivée ;
         avec des sous-classes déclarant ``__slots__ = ()`` on obtiendrait un
