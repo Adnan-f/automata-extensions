@@ -60,7 +60,7 @@ class AccessibilityMixin:
         reversed_map: dict = {state: set() for state in self.states}
         for source, row in self.transitions.items():
             for target in row.values():
-                targets = target if isinstance(target, (set, frozenset)) else {target}
+                targets = target if self._nondeterministic else {target}
                 for t in targets:
                     reversed_map.setdefault(t, set()).add(source)
         return reversed_map
@@ -179,7 +179,7 @@ class AccessibilityMixin:
                 continue
             new_row = {}
             for symbol, target in row.items():
-                if isinstance(target, (set, frozenset)):
+                if self._nondeterministic:
                     kept = frozenset(t for t in target if t in subset)
                     if kept:
                         new_row[symbol] = kept
