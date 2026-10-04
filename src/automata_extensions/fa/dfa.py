@@ -12,9 +12,11 @@ from .dfa_mixins.inclusion import InclusionMixin
 from .dfa_mixins.minimization import MinimizationMixin
 from .dfa_mixins.isomorphism import IsomorphismMixin
 from .dfa_mixins.prefix import PrefixMixin
+from .fa_mixins.brzozowski import BrzozowskiMixin
 
 
 class ExtendedDFA(
+    BrzozowskiMixin,
     PrefixMixin,
     IsomorphismMixin,
     MinimizationMixin,

@@ -16,9 +16,12 @@ from .fa_mixins.cycle import CycleMixin
 from .fa_mixins.graph import GraphMixin
 from .fa_mixins.traversal import TraversalMixin
 from .fa_mixins.morphism import MorphismMixin
-
+from .fa_mixins.reverse import ReverseMixin
+from .fa_mixins.language_operations import LanguageOperationsMixin
 
 class ExtendedFA(
+    LanguageOperationsMixin,
+    ReverseMixin,
     MorphismMixin,
     CycleMixin,
     AccessibilityMixin,
