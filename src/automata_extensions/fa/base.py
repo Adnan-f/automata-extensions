@@ -19,11 +19,13 @@ from .fa_mixins.language_operations import LanguageOperationsMixin
 from .fa_mixins.morphism import MorphismMixin
 from .fa_mixins.regex import RegexMixin
 from .fa_mixins.regex_arden import ArdenMixin
+from .fa_mixins.regex_optimum import RegexOptimumMixin
 from .fa_mixins.reverse import ReverseMixin
 from .fa_mixins.traversal import TraversalMixin
 
 
 class ExtendedFA(
+    RegexOptimumMixin,
     ArdenMixin,
     RegexMixin,
     LanguageOperationsMixin,

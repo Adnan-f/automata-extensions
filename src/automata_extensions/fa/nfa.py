@@ -6,9 +6,11 @@ from .base import ExtendedFA
 from .nfa_mixins.determinization import DeterminizationMixin
 from .nfa_mixins.elimination import EliminationMixin
 from .nfa_mixins.epsilon import EpsilonMixin
+from .nfa_mixins.thompson import ThompsonMixin
 
 
 class ExtendedNFA(
+    ThompsonMixin,
     DeterminizationMixin,
     EliminationMixin,
     EpsilonMixin,
