@@ -22,9 +22,11 @@ from .fa_mixins.regex_arden import ArdenMixin
 from .fa_mixins.regex_optimum import RegexOptimumMixin
 from .fa_mixins.reverse import ReverseMixin
 from .fa_mixins.traversal import TraversalMixin
+from .fa_mixins.grammar_fa import GrammarMixin
 
 
 class ExtendedFA(
+    GrammarMixin,
     RegexOptimumMixin,
     ArdenMixin,
     RegexMixin,
