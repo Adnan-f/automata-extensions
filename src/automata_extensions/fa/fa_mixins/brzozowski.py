@@ -33,6 +33,10 @@ class BrzozowskiMixin:
         ----------
         Brzozowski (1962) ; Hopcroft, Motwani, Ullman.
         """
+        if self.is_empty():
+            # Sans état final, le double renversement est dégénéré (l'état de
+            # départ artificiel de reverse() survit) : on délègue à minimize().
+            return self.minimize()
         step1 = self.reverse().determinize()
         step2 = step1.reverse().determinize()
         return step2

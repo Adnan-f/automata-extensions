@@ -11,12 +11,18 @@ from .dfa_mixins.difference import DifferenceMixin
 from .dfa_mixins.inclusion import InclusionMixin
 from .dfa_mixins.minimization import MinimizationMixin
 from .dfa_mixins.isomorphism import IsomorphismMixin
+from .dfa_mixins.execution import ExecutionMixin
 from .dfa_mixins.from_regex import FromRegexMixin
 from .dfa_mixins.prefix import PrefixMixin
+from .dfa_mixins.residual import ResidualMixin
+from .dfa_mixins.syntactic_monoid import SyntacticMonoidMixin
 from .fa_mixins.brzozowski import BrzozowskiMixin
 
 
 class ExtendedDFA(
+    SyntacticMonoidMixin,
+    ResidualMixin,
+    ExecutionMixin,
     FromRegexMixin,
     BrzozowskiMixin,
     PrefixMixin,

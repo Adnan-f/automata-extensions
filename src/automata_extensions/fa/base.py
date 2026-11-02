@@ -23,9 +23,14 @@ from .fa_mixins.regex_optimum import RegexOptimumMixin
 from .fa_mixins.reverse import ReverseMixin
 from .fa_mixins.traversal import TraversalMixin
 from .fa_mixins.grammar_fa import GrammarMixin
-
+from .fa_mixins.determinism import DeterminismMixin
+from .fa_mixins.quotient_fa import QuotientMixin
+from .fa_mixins.word import WordMixin
 
 class ExtendedFA(
+    QuotientMixin,
+    DeterminismMixin,
+    WordMixin,
     GrammarMixin,
     RegexOptimumMixin,
     ArdenMixin,
