@@ -205,6 +205,10 @@ class AccessibilityMixin:
         """
         Automate élagué : restriction aux états utiles.
 
+        Si le langage est vide, aucun état n'est utile : on conserve alors
+        uniquement l'état initial (sans transition ni état final), car un
+        automate doit toujours avoir un état initial.
+
         Returns
         -------
         FA
@@ -214,4 +218,7 @@ class AccessibilityMixin:
         ----------
         O(|Q| + |E|)
         """
-        return self.induced_subautomaton(self.useful_states())
+        useful = self.useful_states()
+        if self.initial_state not in useful:
+            useful = {self.initial_state}
+        return self.induced_subautomaton(useful)
