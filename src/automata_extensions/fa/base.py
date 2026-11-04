@@ -26,8 +26,12 @@ from .fa_mixins.grammar_fa import GrammarMixin
 from .fa_mixins.determinism import DeterminismMixin
 from .fa_mixins.quotient_fa import QuotientMixin
 from .fa_mixins.word import WordMixin
+from .fa_mixins.animation import AnimationMixin
+from .fa_mixins.visualisation import VisualisationMixin
 
 class ExtendedFA(
+    AnimationMixin,
+    VisualisationMixin,
     QuotientMixin,
     DeterminismMixin,
     WordMixin,
