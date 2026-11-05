@@ -28,8 +28,10 @@ from .fa_mixins.quotient_fa import QuotientMixin
 from .fa_mixins.word import WordMixin
 from .fa_mixins.animation import AnimationMixin
 from .fa_mixins.visualisation import VisualisationMixin
+from .fa_mixins.counterexample import CounterexampleMixin
 
 class ExtendedFA(
+    CounterexampleMixin,
     AnimationMixin,
     VisualisationMixin,
     QuotientMixin,
