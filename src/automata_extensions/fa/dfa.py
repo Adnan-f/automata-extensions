@@ -23,6 +23,7 @@ class ExtendedDFA(
     ResidualMixin,
     ExecutionMixin,
     FromRegexMixin,
+    PrefixMixin,
     IsomorphismMixin,
     MinimizationMixin,
     InclusionMixin,
