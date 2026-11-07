@@ -14,8 +14,7 @@ from random import Random
 from typing import Dict, Iterator, List, Optional, Tuple
 
 from ...regex.ast import EMPTY, EPSILON, Regex, Symbol, concat, star, union
-
-_CONST = object()
+from ...equations import EquationSystem
 
 
 def _best(candidates: Iterator[Regex]) -> Optional[str]:
@@ -78,24 +77,9 @@ class RegexOptimumMixin:
 
     @staticmethod
     def _solve_arden(edges, order, initial, finals, useful) -> Regex:
-        equations: Dict = {q: {} for q in useful}
-        for (p, q), r in edges.items():
-            equations[p][q] = r
-        for f in finals:
-            equations[f][_CONST] = EPSILON
-        for q in order:
-            eq_q = equations.pop(q)
-            star_self = star(eq_q.pop(q, EMPTY))
-            resolved = {t: concat(star_self, c) for t, c in eq_q.items()}
-            for eq_p in equations.values():
-                c_to_q = eq_p.pop(q, None)
-                if c_to_q is None:
-                    continue
-                for t, c in resolved.items():
-                    eq_p[t] = union(eq_p.get(t, EMPTY), concat(c_to_q, c))
-        final_eq = equations[initial]
-        star_self = star(final_eq.pop(initial, EMPTY))
-        return concat(star_self, final_eq.get(_CONST, EMPTY))
+        """Résolution d'Arden via ``EquationSystem`` (l'état initial est éliminé en dernier)."""
+        system = EquationSystem(tuple(useful), edges, {f: EPSILON for f in finals})
+        return system.solve(list(order) + [initial])[initial]
 
     def to_regex_optimum(
         self, max_exhaustive: int = 6, samples: int = 200, seed: int = 0

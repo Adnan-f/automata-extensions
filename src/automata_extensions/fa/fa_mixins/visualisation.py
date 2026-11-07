@@ -14,10 +14,10 @@ import math
 import re
 from pathlib import Path
 from typing import Dict, List, Tuple
+from ...utils.ordering import natural_key as _natural_key
+from ...utils.ordering import state_label
 
 _DOT_ID = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*|-?(\.[0-9]+|[0-9]+(\.[0-9]*)?))$")
-_NATURAL = re.compile(r"(\d+)")
-
 # Géométrie de placement, en « unités de ligne » : une ligne = 1, une colonne = _COL_STRETCH.
 _COL_STRETCH = 140.0 / 120.0
 _CLEARANCE = 0.42          # distance minimale (en unités) entre une arête et un autre état
@@ -41,23 +41,6 @@ def _curve_clearance(p0, p2, h, others) -> float:
         for ox, oy in others:
             best = min(best, math.hypot(x - ox, y - oy))
     return best
-
-
-def _natural_key(text: str):
-    """Tri « naturel » : ``q2 < q10``."""
-    return [int(part) if part.isdigit() else part for part in _NATURAL.split(text)]
-
-
-def state_label(state) -> str:
-    """
-    Texte lisible d'un état : ``frozenset({'0','1'})`` s'écrit ``{0,1}``,
-    ``('a','b')`` s'écrit ``(a,b)``, le reste via ``str``.
-    """
-    if isinstance(state, (set, frozenset)):
-        return "{" + ",".join(sorted((state_label(s) for s in state), key=_natural_key)) + "}"
-    if isinstance(state, tuple):
-        return "(" + ",".join(state_label(s) for s in state) + ")"
-    return str(state)
 
 
 def dot_quote(text: str) -> str:

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from itertools import combinations
-from typing import Dict, FrozenSet, List, Set, TypeVar
+from typing import Dict, FrozenSet, List, Optional, Set, TypeVar
+
+from ...utils.ordering import sort_states, state_label
 
 DFAType = TypeVar("DFAType")
 
@@ -17,14 +19,63 @@ class MinimizationMixin:
     états.
     """
 
+    def pair_table(self) -> Dict[FrozenSet, Optional[int]]:
+        """
+        Table de distinguabilité complète, avec le numéro de round de marquage.
+
+        Une paire ``{p, q}`` reçoit le round ``0`` si exactement un des deux états est
+        final ; sinon le round ``r`` si, pour un symbole ``a``, la paire
+        ``{δ(p,a), δ(q,a)}`` a été marquée au round ``r-1`` (les marques d'un round
+        n'utilisent que celles des rounds précédents). Une paire jamais marquée vaut
+        ``None`` : les deux états sont équivalents.
+
+        Le round d'une paire est la **longueur du plus court mot** qui distingue les deux
+        états (``0`` : le mot vide).
+
+        Returns
+        -------
+        dict
+            ``frozenset({p, q}) -> round`` (``int``) ou ``None``, pour les états de
+            l'automate complété.
+
+        Complexity
+        ----------
+        O(|Q|^2 * |Sigma|) par round, au plus |Q|^2 rounds.
+
+        References
+        ----------
+        Hopcroft, Motwani, Ullman — algorithme de remplissage de table.
+        """
+        complete_self = self.complete()
+        states = sort_states(complete_self.states)
+        finals = set(complete_self.final_states)
+        symbols = sorted(complete_self.input_symbols)
+        table: Dict[FrozenSet, Optional[int]] = {}
+        for p, q in combinations(states, 2):
+            table[frozenset((p, q))] = 0 if (p in finals) != (q in finals) else None
+
+        round_number = 0
+        while True:
+            round_number += 1
+            newly_marked = []
+            for pair, mark in table.items():
+                if mark is not None:
+                    continue
+                p, q = tuple(pair)
+                for symbol in symbols:
+                    tp = complete_self.transitions[p][symbol]
+                    tq = complete_self.transitions[q][symbol]
+                    if tp != tq and table[frozenset((tp, tq))] is not None:
+                        newly_marked.append(pair)
+                        break
+            if not newly_marked:
+                return table
+            for pair in newly_marked:
+                table[pair] = round_number
+
     def distinguishable_states(self) -> Set[FrozenSet]:
         """
-        Ensemble des paires d'états distinguables.
-
-        Algorithme de remplissage de table : une paire est marquée
-        initialement si exactement un des deux états est final, puis on
-        propage — une paire (p, q) est distinguable si, pour un symbole a,
-        (delta(p, a), delta(q, a)) est déjà marquée distinguable.
+        Ensemble des paires d'états distinguables (celles marquées dans ``pair_table``).
 
         Returns
         -------
@@ -33,68 +84,49 @@ class MinimizationMixin:
 
         Complexity
         ----------
-        O(|Q|^2 * |Sigma|)
-
-        References
-        ----------
-        Hopcroft, Motwani, Ullman — algorithme de remplissage de table.
+        Celle de ``pair_table``.
         """
-        complete_self = self.complete()
-        states = sorted(complete_self.states, key=str)
-        finals = set(complete_self.final_states)
-
-        marked: Set[FrozenSet] = set()
-        pairs = list(combinations(states, 2))
-
-        for p, q in pairs:
-            if (p in finals) != (q in finals):
-                marked.add(frozenset((p, q)))
-
-        changed = True
-        while changed:
-            changed = False
-            for p, q in pairs:
-                pair = frozenset((p, q))
-                if pair in marked:
-                    continue
-                for symbol in complete_self.input_symbols:
-                    tp = complete_self.transitions[p][symbol]
-                    tq = complete_self.transitions[q][symbol]
-                    if tp != tq and frozenset((tp, tq)) in marked:
-                        marked.add(pair)
-                        changed = True
-                        break
-        return marked
+        return {pair for pair, mark in self.pair_table().items() if mark is not None}
 
     def pair_table_str(self, show_round: bool = False) -> str:
         """
-        Représentation ASCII triangulaire de la table de distinguabilité.
+        Table de distinguabilité en ASCII (triangle inférieur).
+
+        La première ligne liste les colonnes (tous les états sauf le dernier), puis une
+        ligne par état (sauf le premier) donne, pour chaque colonne plus petite, le numéro
+        de round (``show_round=True``) ou ``X`` (distinguables) ; ``-`` : équivalents.
+        Exemple pour le DFA « nombre de a multiple de 3 » : ``' 0 1\\n1 0\\n2 0 1'``.
 
         Parameters
         ----------
         show_round : bool
-            Ignoré ici (conservé pour compatibilité de signature) : cette
-            implémentation ne numérote pas les rounds de marquage.
+            Afficher le numéro de round plutôt que ``X``.
 
         Returns
         -------
         str
-            Une ligne par état (sauf le premier), listant à quel autre état
-            il est marqué distinguable.
 
         Complexity
         ----------
-        O(|Q|^2)
+        O(|Q|^2) après le calcul de ``pair_table``.
         """
-        states = sorted(self.states, key=str)
-        marked = self.distinguishable_states()
-        lines = []
+        table = self.pair_table()
+        states = sort_states(self.complete().states)
+        if len(states) < 2:
+            return ""
+
+        def cell(mark: Optional[int]) -> str:
+            return "-" if mark is None else (str(mark) if show_round else "X")
+
+        lines = [" ".join([""] + [state_label(s) for s in states[:-1]])]
         for i in range(1, len(states)):
-            row_marks = []
-            for j in range(i):
-                row_marks.append("1" if frozenset((states[i], states[j])) in marked else "0")
-            lines.append(" ".join(row_marks))
+            entries = [cell(table[frozenset((states[i], states[j]))]) for j in range(i)]
+            lines.append(" ".join([state_label(states[i])] + entries))
         return "\n".join(lines)
+
+    def print_pair_table(self, show_round: bool = True) -> None:
+        """Affiche ``pair_table_str`` (avec les numéros de round par défaut)."""
+        print(self.pair_table_str(show_round=show_round))
 
     def equivalence_classes(self) -> List[FrozenSet]:
         """
@@ -170,7 +202,7 @@ class MinimizationMixin:
         Returns
         -------
         DFA
-            Nouveau DFA minimal, restreint aux états accessibles.
+            Nouveau DFA minimal, restreint aux états utiles.
 
         Complexity
         ----------

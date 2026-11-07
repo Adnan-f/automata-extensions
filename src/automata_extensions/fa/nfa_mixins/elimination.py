@@ -63,3 +63,14 @@ class EliminationMixin:
             initial_state=self.initial_state,
             final_states=frozenset(new_finals),
         )
+
+    def eliminate_lambda(self):
+        """
+        Alias de ``remove_epsilon_transitions`` : surcharge ``NFA.eliminate_lambda``
+        d'automata-lib pour que les deux noms donnent le même résultat (un NFA étendu).
+
+        Complexity
+        ----------
+        O(|Q|^2 * |Sigma|)
+        """
+        return self.remove_epsilon_transitions()

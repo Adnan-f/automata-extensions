@@ -16,7 +16,6 @@ from .dfa_mixins.from_regex import FromRegexMixin
 from .dfa_mixins.prefix import PrefixMixin
 from .dfa_mixins.residual import ResidualMixin
 from .dfa_mixins.syntactic_monoid import SyntacticMonoidMixin
-from .fa_mixins.brzozowski import BrzozowskiMixin
 
 
 class ExtendedDFA(
@@ -24,8 +23,6 @@ class ExtendedDFA(
     ResidualMixin,
     ExecutionMixin,
     FromRegexMixin,
-    BrzozowskiMixin,
-    PrefixMixin,
     IsomorphismMixin,
     MinimizationMixin,
     InclusionMixin,

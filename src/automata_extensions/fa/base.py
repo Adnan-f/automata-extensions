@@ -12,6 +12,9 @@ from typing import Any, Dict
 
 from automata.fa.fa import FA
 
+from .fa_mixins.brzozowski import BrzozowskiMixin
+from .fa_mixins.equations_fa import EquationsMixin
+from .fa_mixins.scc import SCCMixin
 from .fa_mixins.accessibility import AccessibilityMixin
 from .fa_mixins.cycle import CycleMixin
 from .fa_mixins.graph import GraphMixin
@@ -31,6 +34,9 @@ from .fa_mixins.visualisation import VisualisationMixin
 from .fa_mixins.counterexample import CounterexampleMixin
 
 class ExtendedFA(
+    EquationsMixin,
+    SCCMixin,
+    BrzozowskiMixin,
     CounterexampleMixin,
     AnimationMixin,
     VisualisationMixin,
