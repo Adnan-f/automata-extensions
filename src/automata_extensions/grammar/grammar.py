@@ -404,7 +404,7 @@ class ParseTree:
 
     def to_dot(self) -> str:
         """Description Graphviz de l'arbre."""
-        lines = ["digraph {", "\tnode [shape=plaintext]"]
+        lines = ["digraph {", "\tnode [shape=plaintext]", "\tedge [arrowhead=none]"]
         counter = [0]
 
         def visit(node: "ParseTree") -> int:

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Lecture du mot « aab »</title>
+<style>
+  :root { --bg:#ffffff; --fg:#1f2430; --muted:#6b7280; --edge:#8a93a6; --accent:#2563eb;
+          --accent-bg:#dbeafe; --ok:#15803d; --ko:#b91c1c; --panel:#f3f4f6; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14171f; --fg:#e5e7eb; --muted:#9ca3af; --edge:#6b7280; --accent:#60a5fa;
+            --accent-bg:#1e3a5f; --ok:#4ade80; --ko:#f87171; --panel:#1f2430; } }
+  body { margin:0; padding:1.2rem; background:var(--bg); color:var(--fg);
+         font-family:system-ui,-apple-system,Segoe UI,sans-serif; }
+  h1 { font-size:1.05rem; margin:0 0 .8rem; }
+  #diagram { width:100%; max-width:520px; height:auto; background:var(--panel);
+             border-radius:10px; }
+  .state circle { fill:var(--bg); stroke:var(--fg); stroke-width:2; }
+  .state .inner { fill:none; }
+  .state text, .edge text { fill:var(--fg); text-anchor:middle; dominant-baseline:central;
+                            font-size:14px; }
+  .edge text { font-size:13px; }
+  .edge path, .start-arrow { fill:none; stroke:var(--edge); stroke-width:1.6; }
+  .state.active circle { fill:var(--accent-bg); stroke:var(--accent); stroke-width:3.5; }
+  .state.active text { font-weight:700; }
+  .state.blocked circle { stroke:var(--ko); }
+  .edge.used path { stroke:var(--accent); stroke-width:3.2; }
+  .edge.used text { fill:var(--accent); font-weight:700; }
+  #arrow-head { fill:var(--edge); } #arrow-used-head { fill:var(--accent); }
+  #word { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1.5rem;
+          margin:.9rem 0 .3rem; letter-spacing:.12em; }
+  #word span { padding:0 .08em; border-bottom:3px solid transparent; }
+  #word .done { color:var(--muted); }
+  #word .current { border-bottom-color:var(--accent); color:var(--accent); font-weight:700; }
+  #note { min-height:1.4em; margin:.2rem 0 .6rem; }
+  #verdict { font-weight:700; }
+  #verdict.ok { color:var(--ok); } #verdict.ko { color:var(--ko); }
+  button { font:inherit; padding:.35rem .8rem; margin-right:.3rem; border-radius:6px;
+           border:1px solid var(--edge); background:var(--panel); color:var(--fg); cursor:pointer; }
+  button:disabled { opacity:.4; cursor:default; }
+  #counter { color:var(--muted); margin-left:.6rem; }
+</style>
+</head>
+<body>
+<h1>Lecture du mot « aab »</h1>
+<svg id="diagram" viewBox="10 -6 434 224" xmlns="http://www.w3.org/2000/svg" role="img">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path id="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="arrow-used" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path id="arrow-used-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<line class="start-arrow" x1="30.0" y1="90.0" x2="76.0" y2="90.0" marker-end="url(#arrow)"/>
+<g class="edge" id="e_s0_s0"><path d="M 86.2 70.3 C 60.0 10.0 140.0 10.0 113.8 70.3" marker-end="url(#arrow)"/><text x="100.0" y="18.0">b</text></g>
+<g class="edge" id="e_s0_s1"><path d="M 124.0 90.0 L 216.0 90.0" marker-end="url(#arrow)"/><text x="170.0" y="77.0">a</text></g>
+<g class="edge" id="e_s1_s1"><path d="M 226.2 70.3 C 200.0 10.0 280.0 10.0 253.8 70.3" marker-end="url(#arrow)"/><text x="240.0" y="18.0">b</text></g>
+<g class="edge" id="e_s1_s2"><path d="M 264.0 90.0 L 356.0 90.0" marker-end="url(#arrow)"/><text x="310.0" y="77.0">a</text></g>
+<g class="edge" id="e_s2_s0"><path d="M 364.6 108.4 C 281.5 208.1 198.5 208.1 115.4 108.4" marker-end="url(#arrow)"/><text x="240.0" y="194.2">a</text></g>
+<g class="edge" id="e_s2_s2"><path d="M 366.2 70.3 C 340.0 10.0 420.0 10.0 393.8 70.3" marker-end="url(#arrow)"/><text x="380.0" y="18.0">b</text></g>
+<g class="state" id="n_s0"><circle cx="100.0" cy="90.0" r="24"/><circle class="inner" cx="100.0" cy="90.0" r="19"/><text x="100.0" y="90.0" style="font-size:14px">0</text></g>
+<g class="state" id="n_s1"><circle cx="240.0" cy="90.0" r="24"/><text x="240.0" y="90.0" style="font-size:14px">1</text></g>
+<g class="state" id="n_s2"><circle cx="380.0" cy="90.0" r="24"/><text x="380.0" y="90.0" style="font-size:14px">2</text></g>
+</svg>
+<div id="word" aria-label="mot lu"></div>
+<div id="note"></div>
+<div>
+  <button id="reset" title="Début (Origine)">⏮</button>
+  <button id="prev" title="Pas précédent (←)">◀</button>
+  <button id="next" title="Pas suivant (→)">▶</button>
+  <button id="play" title="Lecture automatique (espace)">⏵ Lecture</button>
+  <span id="counter"></span> <span id="verdict"></span>
+</div>
+<script id="automaton-data" type="application/json">{"word": "aab", "steps": [{"active": ["s0"], "edges": [], "consumed": 0, "blocked": false, "note": "État initial : 0"}, {"active": ["s1"], "edges": ["s0_s1"], "consumed": 1, "blocked": false, "note": "Lecture de « a » : 0 → 1"}, {"active": ["s2"], "edges": ["s1_s2"], "consumed": 2, "blocked": false, "note": "Lecture de « a » : 1 → 2"}, {"active": ["s2"], "edges": ["s2_s2"], "consumed": 3, "blocked": false, "note": "Lecture de « b » : 2 → 2"}], "accepted": false}</script>
+<script>
+(function () {
+  var D = JSON.parse(document.getElementById("automaton-data").textContent);
+  var i = 0, timer = null;
+  function $(id) { return document.getElementById(id); }
+  function render() {
+    var s = D.steps[i], last = i === D.steps.length - 1;
+    Array.prototype.forEach.call(document.querySelectorAll(".state"), function (el) {
+      el.classList.remove("active", "blocked"); });
+    Array.prototype.forEach.call(document.querySelectorAll(".edge"), function (el) {
+      el.classList.remove("used");
+      el.querySelector("path").setAttribute("marker-end", "url(#arrow)"); });
+    s.active.forEach(function (id) {
+      $("n_" + id).classList.add(s.blocked ? "blocked" : "active");
+      if (s.blocked) { $("n_" + id).classList.add("active"); } });
+    s.edges.forEach(function (key) {
+      var e = $("e_" + key);
+      if (e) { e.classList.add("used");
+               e.querySelector("path").setAttribute("marker-end", "url(#arrow-used)"); } });
+    var word = $("word"); word.textContent = "";
+    if (D.word.length === 0) { word.textContent = "ε"; }
+    for (var k = 0; k < D.word.length; k++) {
+      var span = document.createElement("span");
+      span.textContent = D.word.charAt(k);
+      if (k < s.consumed) { span.className = "done"; }
+      else if (k === s.consumed && !last) { span.className = "current"; }
+      word.appendChild(span);
+    }
+    $("note").textContent = s.note;
+    $("counter").textContent = (i + 1) + " / " + D.steps.length;
+    $("prev").disabled = $("reset").disabled = (i === 0);
+    $("next").disabled = last;
+    var v = $("verdict");
+    if (last) { v.textContent = D.accepted ? "✔ mot accepté" : "✘ mot rejeté";
+                v.className = D.accepted ? "ok" : "ko"; }
+    else { v.textContent = ""; v.className = ""; }
+    if (last) { stop(); }
+  }
+  function go(n) { i = Math.max(0, Math.min(D.steps.length - 1, n)); render(); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; }
+                    $("play").textContent = "⏵ Lecture"; }
+  function play() {
+    if (timer) { stop(); return; }
+    if (i === D.steps.length - 1) { i = 0; render(); }
+    $("play").textContent = "⏸ Pause";
+    timer = setInterval(function () { go(i + 1); }, 900);
+  }
+  $("reset").addEventListener("click", function () { stop(); go(0); });
+  $("prev").addEventListener("click", function () { stop(); go(i - 1); });
+  $("next").addEventListener("click", function () { stop(); go(i + 1); });
+  $("play").addEventListener("click", play);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { stop(); go(i + 1); }
+    else if (e.key === "ArrowLeft") { stop(); go(i - 1); }
+    else if (e.key === " ") { e.preventDefault(); play(); } });
+  render();
+})();
+</script>
+</body>
+</html>
