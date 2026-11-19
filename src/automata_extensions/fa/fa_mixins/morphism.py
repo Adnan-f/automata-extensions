@@ -57,50 +57,79 @@ class MorphismMixin:
                         return False
         return True
 
-    def project(self: FAType, symbol_map: Mapping[str, Optional[str]]) -> FAType:
+    def project(self, symbol_map):
         """
-        Relabellise (ou efface, avec ``None``) les symboles d'entrée.
+        Relabellise ou efface les symboles d'entrée (homomorphisme de mots).
+
+        Chaque symbole ``a`` est remplacé par ``symbol_map[a]`` (inchangé s'il est absent
+        de ``symbol_map``) ; ``None`` **efface** le symbole : la transition devient une
+        ε-transition. Les ε-transitions existantes sont conservées.
+
+        Le résultat est un **NFA** dès qu'il peut être non déterministe : symbole effacé
+        (ε-transition) ou deux symboles fusionnés vers des cibles différentes. Un simple
+        renommage injectif d'un DFA reste un DFA (partiel si besoin).
 
         Parameters
         ----------
         symbol_map : Mapping[str, Optional[str]]
-            Association symbole d'origine -> nouveau symbole (ou ``None``
-            pour effacer, càd transformer la transition en epsilon-transition
-            représentée par la chaîne vide).
+            Association symbole d'origine -> nouveau symbole (ou ``None`` pour effacer).
 
         Returns
         -------
         FA
-            Nouvel automate sur le nouvel alphabet.
+            Nouvel automate : même classe que ``self`` si le résultat reste déterministe,
+            sinon un ``ExtendedNFA``. Il reconnaît ``{h(w) : w dans L}``.
+
+        Raises
+        ------
+        TypeError
+            Pour un GNFA.
 
         Complexity
         ----------
         O(|Q| * |Sigma|)
         """
-        new_symbols = {v for v in symbol_map.values() if v is not None}
-        new_transitions: dict = {}
-        for source, row in self.transitions.items():
-            new_row: dict = {}
-            for symbol, target in row.items():
-                new_symbol = symbol_map.get(symbol, symbol)
-                key = "" if new_symbol is None else new_symbol
-                if self._nondeterministic:
-                    new_row.setdefault(key, set()).update(target)
-                else:
-                    if key in new_row and isinstance(new_row[key], set):
-                        new_row[key].add(target)
-                    elif key in new_row:
-                        new_row[key] = {new_row[key], target}
-                    else:
-                        new_row[key] = target
-            new_transitions[source] = new_row
+        from automata.fa.gnfa import GNFA
 
-        params = dict(self.input_parameters)
-        params["input_symbols"] = frozenset(new_symbols)
-        params["transitions"] = new_transitions
-        if "allow_partial" in params:
-            params["allow_partial"] = True
-        return self.__class__(**params)
+        if isinstance(self, GNFA):
+            raise TypeError("project n'est pas défini pour un GNFA")
+
+        new_symbols = {symbol_map.get(a, a) for a in self.input_symbols} - {None}
+        rows = {}
+        erased = False
+        for source, row in self.transitions.items():
+            new_row = {}
+            for symbol, target in row.items():
+                new_symbol = "" if symbol == "" else symbol_map.get(symbol, symbol)
+                if new_symbol is None:
+                    erased = True
+                    new_symbol = ""
+                targets = set(target) if self._nondeterministic else {target}
+                new_row.setdefault(new_symbol, set()).update(targets)
+            rows[source] = new_row
+
+        nondeterministic = self._nondeterministic or erased or any(
+            len(targets) > 1 for row in rows.values() for targets in row.values())
+
+        if not nondeterministic:
+            params = dict(self.input_parameters)
+            params["input_symbols"] = frozenset(new_symbols)
+            params["transitions"] = {
+                source: {symbol: next(iter(targets)) for symbol, targets in row.items()}
+                for source, row in rows.items()}
+            if "allow_partial" in params:
+                params["allow_partial"] = True
+            return self.__class__(**params)
+
+        from ..nfa import ExtendedNFA
+
+        nfa_class = self.__class__ if self._nondeterministic else ExtendedNFA
+        return nfa_class(
+            states=frozenset(self.states), input_symbols=frozenset(new_symbols),
+            transitions={source: {symbol: frozenset(targets) for symbol, targets in row.items()}
+                         for source, row in rows.items()},
+            initial_state=self.initial_state,
+            final_states=frozenset(self._final_states_set()))
 
     def quotient_by(self: FAType, state_map: Mapping) -> FAType:
         """
