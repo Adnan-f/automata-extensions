@@ -33,3 +33,4 @@ Première version complète, construite par phases (chacune sur sa branche, fusi
 - `determinize` : fermeture ε de l'état initial calculée avant la suppression des ε ; ensemble vide traité.
 - `reverse` : pas d'ε-préambule quand il n'y a qu'un état final (sinon Brzozowski non minimal).
 - TikZ : `>=stealth'` invalide ; arêtes traversant un état ; SVG : pointes de flèche et cadrage.
+- `ParseTree` : parcours, `==`, `hash` et affichage itératifs (une dérivation d'un millier de lettres levait `RecursionError`).
