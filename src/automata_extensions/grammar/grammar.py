@@ -373,26 +373,54 @@ class DerivationStep:
 
 
 class _Node:
+    """Nœud mutable servant à construire un arbre ; ``freeze`` produit l'arbre immuable."""
+
+    __slots__ = ("symbol", "children")
+
     def __init__(self, symbol: str) -> None:
         self.symbol = symbol
         self.children: List["_Node"] = []
 
     def freeze(self) -> "ParseTree":
-        return ParseTree(self.symbol, tuple(c.freeze() for c in self.children))
+        """Arbre immuable équivalent, construit sans récursion (parcours en post-ordre)."""
+        built: Dict[int, "ParseTree"] = {}
+        stack = [(self, False)]
+        while stack:
+            node, expanded = stack.pop()
+            if expanded:
+                built[id(node)] = ParseTree(
+                    node.symbol, tuple(built.pop(id(child)) for child in node.children))
+            else:
+                stack.append((node, True))
+                stack.extend((child, False) for child in node.children)
+        return built[id(self)]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False, repr=False)
 class ParseTree:
-    """Arbre de dérivation : un symbole et ses fils (``ε`` pour une règle vide)."""
+    """
+    Arbre de dérivation : un symbole et ses fils (``ε`` pour une règle vide).
+
+    Toutes les opérations (parcours, ``==``, ``hash``, affichage) sont **itératives** : un arbre
+    de dérivation d'un mot de plusieurs milliers de lettres ne dépasse pas la limite de
+    récursion de Python.
+    """
 
     symbol: str
     children: Tuple["ParseTree", ...] = ()
 
+    def _preorder(self):
+        """Couples (nœud, profondeur) en pré-ordre, de gauche à droite, sans récursion."""
+        stack = [(self, 0)]
+        while stack:
+            node, depth = stack.pop()
+            yield node, depth
+            for child in reversed(node.children):
+                stack.append((child, depth + 1))
+
     def leaves(self) -> List[str]:
         """Feuilles de gauche à droite (symboles, ε compris)."""
-        if not self.children:
-            return [self.symbol]
-        return [leaf for c in self.children for leaf in c.leaves()]
+        return [node.symbol for node, _ in self._preorder() if not node.children]
 
     def word(self) -> str:
         """Mot lu sur les feuilles (ε ignoré)."""
@@ -400,34 +428,56 @@ class ParseTree:
 
     def depth(self) -> int:
         """Hauteur de l'arbre (une feuille seule : 0)."""
-        return 0 if not self.children else 1 + max(c.depth() for c in self.children)
+        return max(depth for _, depth in self._preorder())
 
     def to_dot(self) -> str:
-        """Description Graphviz de l'arbre."""
+        """Description Graphviz de l'arbre (identifiants ``n0, n1, ...`` en pré-ordre)."""
         lines = ["digraph {", "\tnode [shape=plaintext]", "\tedge [arrowhead=none]"]
-        counter = [0]
-
-        def visit(node: "ParseTree") -> int:
-            ident = counter[0]
-            counter[0] += 1
+        counter = 0
+        stack = [(self, None)]
+        while stack:
+            node, parent_id = stack.pop()
+            ident = counter
+            counter += 1
             label = node.symbol.replace('"', '\\"')
             shape = "circle" if node.children else "plaintext"
             lines.append(f'\tn{ident} [label="{label}" shape={shape}]')
-            for child in node.children:
-                lines.append(f"\tn{ident} -> n{visit(child)}")
-            return ident
-
-        visit(self)
+            if parent_id is not None:
+                lines.append(f"\tn{parent_id} -> n{ident}")
+            for child in reversed(node.children):
+                stack.append((child, ident))
         lines.append("}")
         return "\n".join(lines)
 
     def __str__(self) -> str:
-        out: List[str] = []
+        return "\n".join("  " * depth + node.symbol for node, depth in self._preorder())
 
-        def visit(node: "ParseTree", depth: int) -> None:
-            out.append("  " * depth + node.symbol)
-            for child in node.children:
-                visit(child, depth + 1)
+    def __repr__(self) -> str:
+        return f"ParseTree({self.symbol!r}, {len(self.children)} fils)"
 
-        visit(self, 0)
-        return "\n".join(out)
+    def __eq__(self, other) -> bool:
+        """Égalité structurelle, sans récursion."""
+        if not isinstance(other, ParseTree):
+            return NotImplemented
+        stack = [(self, other)]
+        while stack:
+            a, b = stack.pop()
+            if a is b:
+                continue
+            if a.symbol != b.symbol or len(a.children) != len(b.children):
+                return False
+            stack.extend(zip(a.children, b.children))
+        return True
+
+    def __hash__(self) -> int:
+        """Hachage structurel, calculé en post-ordre sans récursion."""
+        hashes: Dict[int, int] = {}
+        stack = [(self, False)]
+        while stack:
+            node, expanded = stack.pop()
+            if expanded:
+                hashes[id(node)] = hash((node.symbol, tuple(hashes[id(c)] for c in node.children)))
+            else:
+                stack.append((node, True))
+                stack.extend((child, False) for child in node.children)
+        return hashes[id(self)]
