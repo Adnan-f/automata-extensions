@@ -1,0 +1,54 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Outils système (Graphviz, LaTeX)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz texlive-latex-base texlive-pictures texlive-latex-extra
+      - name: jsdom (test JavaScript de l'animation)
+        run: npm install --prefix "$RUNNER_TEMP/jsdom" jsdom
+      - name: Installation
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Documentation de l'API (chaque méthode publique a une docstring)
+        run: python docs/gen_api.py --check
+      - name: Tests
+        env:
+          NODE_PATH: ${{ runner.temp }}/jsdom/node_modules
+        run: python -m pytest -q --cov=automata_extensions --cov-report=term
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Construction et contrôle du paquet
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+          twine check dist/*
+      - name: Installation du wheel dans un environnement vierge
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install dist/*.whl
+          /tmp/clean/bin/python -c "from automata_extensions import ExtendedDFA, __version__; print(__version__)"

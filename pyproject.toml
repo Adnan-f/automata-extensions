@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "automata-extensions"
+version = "0.1.0"
+description = "Extension pédagogique de automata-lib 9.2.0 : algorithmes sur les automates, expressions régulières, grammaires, visualisation, exercices corrigés"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+# authors = [{name = "Votre nom", email = "vous@exemple.fr"}]
+keywords = ["automata", "finite automata", "regular expressions", "formal languages", "education"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = ["automata-lib==9.2.0", "graphviz"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov"]
+notebook = ["jupyterlab", "ipykernel"]
+diagram = ["pygraphviz", "coloraide"]       # pour show_diagram() d'automata-lib (optionnel)
+
+# [project.urls]
+# Homepage = "https://github.com/<votre-compte>/automata-extensions"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

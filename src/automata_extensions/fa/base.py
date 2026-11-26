@@ -12,16 +12,64 @@ from typing import Any, Dict
 
 from automata.fa.fa import FA
 
+from .fa_mixins.brzozowski import BrzozowskiMixin
+from .fa_mixins.equations_fa import EquationsMixin
+from .fa_mixins.scc import SCCMixin
+from .fa_mixins.accessibility import AccessibilityMixin
+from .fa_mixins.cycle import CycleMixin
+from .fa_mixins.graph import GraphMixin
+from .fa_mixins.language_operations import LanguageOperationsMixin
+from .fa_mixins.morphism import MorphismMixin
+from .fa_mixins.regex import RegexMixin
+from .fa_mixins.regex_arden import ArdenMixin
+from .fa_mixins.regex_optimum import RegexOptimumMixin
+from .fa_mixins.reverse import ReverseMixin
+from .fa_mixins.traversal import TraversalMixin
+from .fa_mixins.grammar_fa import GrammarMixin
+from .fa_mixins.determinism import DeterminismMixin
+from .fa_mixins.quotient_fa import QuotientMixin
+from .fa_mixins.word import WordMixin
+from .fa_mixins.animation import AnimationMixin
+from .fa_mixins.visualisation import VisualisationMixin
+from .fa_mixins.counterexample import CounterexampleMixin
 
-class ExtendedFA(FA):
+class ExtendedFA(
+    EquationsMixin,
+    SCCMixin,
+    BrzozowskiMixin,
+    CounterexampleMixin,
+    AnimationMixin,
+    VisualisationMixin,
+    QuotientMixin,
+    DeterminismMixin,
+    WordMixin,
+    GrammarMixin,
+    RegexOptimumMixin,
+    ArdenMixin,
+    RegexMixin,
+    LanguageOperationsMixin,
+    ReverseMixin,
+    MorphismMixin,
+    CycleMixin,
+    AccessibilityMixin,
+    TraversalMixin,
+    GraphMixin,
+    FA,
+):
     """
     Base commune des automates finis étendus.
 
-    Les mixins seront ajoutés ici, *avant* ``FA`` dans la liste des parents
+    Les mixins sont placés *avant* ``FA`` dans la liste des parents
     (leur ordre détermine la priorité des méthodes, cf. MRO).
     """
 
     __slots__ = ()  # aucun état propre : tout l'état vient de DFA/NFA/GNFA
+
+    # True pour les classes dont les transitions associent un symbole à un
+    # *ensemble* d'états cibles (NFA). Sert à distinguer ce cas d'un DFA dont
+    # les états eux-mêmes seraient des frozenset (ex. après minimize()) :
+    # tester isinstance(target, frozenset) serait ambigu dans ce second cas.
+    _nondeterministic = False
 
     @property
     def input_parameters(self) -> Dict[str, Any]:
