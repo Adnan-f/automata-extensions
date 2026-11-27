@@ -2,7 +2,15 @@
 
 Extension pédagogique de [automata-lib](https://github.com/caleb531/automata) **9.2.0** pour un
 cours de théorie des langages : algorithmes classiques sur les automates finis, expressions
-régulières, grammaires régulières, monoïdes syntaxiques, visualisation, exercices corrigés.
+régulières, grammaires régulières, monoïdes syntaxiques, visualisation et exercices corrigés.
+
+Projet développé par **SEFOUDINE Adnan**.
+
+Le projet ajoute notamment l'accessibilité et les parcours de graphes, les opérations et la
+minimisation des automates, les conversions automates/expressions/grammaires, les dérivées et
+positions d'expressions régulières, ainsi que des exercices corrigés par équivalence de langages.
+La référence complète et les exemples sont disponibles dans le [manuel PDF](docs/automata_extensions_guide.pdf)
+et dans la [référence de l'API](docs/API.md).
 
 La bibliothèque d'origine n'est **jamais modifiée** : tout est ajouté par héritage et *mixins*
 (`ExtendedDFA`, `ExtendedNFA`, `ExtendedGNFA`), si bien que les objets restent de vrais
@@ -12,12 +20,19 @@ La bibliothèque d'origine n'est **jamais modifiée** : tout est ajouté par hé
 
 ## Installation
 
+Prérequis : **Python 3.11 ou supérieur** et **automata-lib 9.2.0** (version verrouillée par le
+projet). Les dépendances Python de production sont déclarées dans `pyproject.toml`; le groupe
+`dev` ajoute pytest et pytest-cov.
+
 ```bash
-git clone https://github.com/<votre-compte>/automata-extensions.git
+# Depuis la racine du dépôt cloné ou téléchargé depuis GitHub
 cd automata-extensions
 python -m venv .venv && source .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -e ".[dev]"
 ```
+
+Pour installer les dépendances d'exécution uniquement, utilisez `pip install -e .`.
 
 Optionnel (rendu SVG/PNG/PDF, compilation du TikZ) — sous Arch Linux :
 
@@ -236,6 +251,13 @@ La suite comprend des tests de **propriétés** comparés à des définitions in
 (force brute sur les mots, accessibilité mutuelle pour les composantes connexes, etc.), un test
 de **couverture du cahier des charges** (`tests/test_spec_coverage.py`) et, si les outils sont
 installés, de vraies compilations LaTeX, rendus Graphviz et exécutions JavaScript.
+
+## Attribution et licence
+
+Cette extension s'appuie sur [automata-lib](https://github.com/caleb531/automata), bibliothèque
+créée par **Caleb Evans** et distribuée sous licence MIT. `automata-extensions` est un projet
+distinct : il étend automata-lib sans modifier son code source. Le présent dépôt conserve sa
+licence MIT dans [`LICENSE`](LICENSE).
 
 ## Références
 

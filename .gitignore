@@ -19,3 +19,4 @@ dist/
 # ... mais pas les figures de la documentation
 !docs/img/*.svg
 !docs/img/*.png
+!docs/automata_extensions_guide.pdf
